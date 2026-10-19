@@ -30,15 +30,23 @@ for frame_id in range(3):
         for i in range(0, len(image_data), packet_size)
     ]
 
+
     for packet_id, chunk in enumerate(chunks):
-        # Header: frame ID, packet index, total packets.
+
+        # Simulate packet loss:
+        # Drop packet index 3 (the fourth packet)
+        # from frame 1 only.
+        if frame_id == 1 and packet_id == 3:
+            print("SIMULATED LOSS: Frame 1, packet 4")
+            continue
+
         header = struct.pack(
             "!IHH", frame_id, packet_id, len(chunks)
         )
 
         sock.sendto(header + chunk, (HOST, PORT))
 
-    print(f"Sent frame {frame_id}: {len(chunks)} packets")
+    print(f"Finished sending frame {frame_id}")
     time.sleep(0.5)
 
 sock.close()
