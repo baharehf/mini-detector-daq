@@ -1,0 +1,7 @@
+receiver_app
+*.o
+*.exe
+__pycache__/
+*.pyc
+build/
+.vscode/
