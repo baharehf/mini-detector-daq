@@ -129,6 +129,8 @@ int main() {
         if (!timing_started) {
             start_time = std::chrono::steady_clock::now();
             timing_started = true;
+
+            std::cout << "TIMER STARTED: first valid packet received\n";
         }
 
         auto it = frames.try_emplace(frame_id, total).first;
