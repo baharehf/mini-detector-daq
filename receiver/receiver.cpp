@@ -13,7 +13,7 @@
 #include <chrono>
 
 constexpr int PORT = 5005;
-constexpr int EXPECTED_FRAMES = 3;
+constexpr int EXPECTED_FRAMES = 10;
 constexpr int FRAME_BYTES = 64 * 64 * 2;
 constexpr int CHUNK_BYTES = 1024;
 

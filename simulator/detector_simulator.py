@@ -11,7 +11,7 @@ PACKET_PIXELS = 512
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-for frame_id in range(3):
+for frame_id in range(10):
     # Create a simulated 64x64 detector image.
     pixels = [
         (x + y + frame_id) % 65536
