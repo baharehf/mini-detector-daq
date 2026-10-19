@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <chrono>
 
 constexpr int PORT = 5005;
 constexpr int EXPECTED_FRAMES = 3;
@@ -84,6 +85,10 @@ int main() {
 
     std::cout << "Waiting for detector frames...\n";
 
+//  auto start_time = std::chrono::steady_clock::now();
+    bool timing_started = false;
+    std::chrono::steady_clock::time_point start_time;
+
     while (completed < EXPECTED_FRAMES) {
         ssize_t bytes = recv(
             sock, buffer.data(), buffer.size(), 0
@@ -119,6 +124,12 @@ int main() {
             std::cerr << "Ignoring invalid packet\n";
             continue;
         }
+        
+        // Start timing after the first valid packet.
+        if (!timing_started) {
+            start_time = std::chrono::steady_clock::now();
+            timing_started = true;
+        }
 
         auto it = frames.try_emplace(frame_id, total).first;
         Frame& frame = it->second;
@@ -148,6 +159,23 @@ int main() {
             frames.erase(it);
         }
     }
+
+    auto end_time = std::chrono::steady_clock::now();
+
+    double elapsed = std::chrono::duration<double>(
+        end_time - start_time
+    ).count();
+
+    double fps = elapsed > 0 ? completed / elapsed : 0.0;
+
+    double throughput = elapsed > 0
+        ? (completed * FRAME_BYTES) / (elapsed * 1'000'000.0)
+        : 0.0;
+
+    std::cout << "\nPerformance Statistics\n";
+    std::cout << "Elapsed time: " << elapsed << " seconds\n";
+    std::cout << "Frames per second: " << fps << "\n";
+    std::cout << "Image throughput: " << throughput << " MB/s\n";
 
     for (const auto& [id, frame] : frames) {
         std::cout << "Incomplete frame " << id
