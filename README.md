@@ -256,6 +256,19 @@ This creates a smooth intensity gradient.
 
 The output is synthetic test data, not a real X-ray measurement.
 
+### Reconstructed Detector Image
+
+The following image shows a reconstructed 64 × 64
+synthetic detector frame received by the C++ application.
+
+![Simulated X-ray Detector Frame](docs/detector_frame.png)
+
+The color gradient represents synthetic pixel intensity.
+Purple indicates low values, while yellow indicates
+higher values.
+
+This is simulated test data, not a real X-ray measurement.
+
 ## 9. Packet-Loss Detection
 
 Reliable scientific acquisition requires identifying incomplete measurements.

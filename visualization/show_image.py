@@ -15,4 +15,15 @@ plt.colorbar(label="Pixel intensity")
 plt.title("Simulated X-ray Detector - Frame 0")
 plt.xlabel("X pixel")
 plt.ylabel("Y pixel")
+
+# Save the figure for GitHub documentation
+from pathlib import Path
+Path("docs").mkdir(exist_ok=True)
+
+plt.savefig(
+    "docs/detector_frame.png",
+    dpi=200,
+    bbox_inches="tight"
+)
+
 plt.show()
