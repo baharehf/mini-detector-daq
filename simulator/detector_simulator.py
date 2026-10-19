@@ -36,9 +36,9 @@ for frame_id in range(3):
         # Simulate packet loss:
         # Drop packet index 3 (the fourth packet)
         # from frame 1 only.
-        if frame_id == 1 and packet_id == 3:
-            print("SIMULATED LOSS: Frame 1, packet 4")
-            continue
+#        if frame_id == 1 and packet_id == 3:
+#            print("SIMULATED LOSS: Frame 1, packet 4")
+#            continue
 
         header = struct.pack(
             "!IHH", frame_id, packet_id, len(chunks)
@@ -47,6 +47,6 @@ for frame_id in range(3):
         sock.sendto(header + chunk, (HOST, PORT))
 
     print(f"Finished sending frame {frame_id}")
-    time.sleep(0.5)
+    time.sleep(0.01)
 
 sock.close()
