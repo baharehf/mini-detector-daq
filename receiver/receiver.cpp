@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <set>
 
 constexpr int PORT = 5005;
 constexpr int EXPECTED_FRAMES = 10;
@@ -74,11 +75,15 @@ int main() {
 
     // Avoid waiting forever when packets are missing.
     timeval timeout{};
-    timeout.tv_sec = 30;
+    timeout.tv_sec = 10;
     setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,
                &timeout, sizeof(timeout));
 
     std::map<uint32_t, Frame> frames;
+    std::set<uint32_t> completed_frame_ids;
+    int duplicate_packets = 0;
+    //int invalid_packets = 0;
+
     std::vector<uint8_t> buffer(2048);
 
     int completed = 0;
@@ -133,10 +138,19 @@ int main() {
             std::cout << "TIMER STARTED: first valid packet received\n";
         }
 
+        if (completed_frame_ids.count(frame_id) > 0) {
+            ++duplicate_packets;
+
+            std::cout << "Late packet ignored: frame "
+                    << frame_id << " has already been saved\n";
+            continue;
+        }
+
         auto it = frames.try_emplace(frame_id, total).first;
         Frame& frame = it->second;
 
         if (frame.received[index]) {
+            ++duplicate_packets;
             std::cout << "Duplicate packet: frame "
                       << frame_id << ", index " << index << "\n";
             continue;
@@ -156,6 +170,7 @@ int main() {
 
         if (frame.count == total) {
             if (save_frame(frame_id, frame)) {
+                completed_frame_ids.insert(frame_id);
                 ++completed;
             }
             frames.erase(it);
@@ -164,9 +179,13 @@ int main() {
 
     auto end_time = std::chrono::steady_clock::now();
 
-    double elapsed = std::chrono::duration<double>(
-        end_time - start_time
-    ).count();
+    double elapsed = 0.0;
+
+    if (timing_started) {
+        elapsed = std::chrono::duration<double>(
+            end_time - start_time
+        ).count();
+    }
 
     double fps = elapsed > 0 ? completed / elapsed : 0.0;
 
@@ -185,6 +204,9 @@ int main() {
                   << "/" << frame.packets.size()
                   << " packets\n";
     }
+
+    std::cout << "Duplicate packets: "
+            << duplicate_packets << "\n";
 
     std::cout << "Complete frames saved: "
               << completed << "/" << EXPECTED_FRAMES << "\n";
